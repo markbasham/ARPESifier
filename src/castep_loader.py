@@ -30,36 +30,3 @@ def load_castep(filename):
             e[i,j] = float(f.readline().strip())
 
     return (kx, ky, kz, e)
-
-if __name__ == "__main__":
-    (kx, ky, kz, e) = load_castep("FeSe_64x64x1.bands")
-
-    # hack to pull out a small region for the moment.
-    ky = ky[kx > 0]
-    e = e[kx > 0]
-    kx = kx[kx > 0]
-
-    ky = ky[kx < 0.1]
-    e = e[kx < 0.1]
-    kx = kx[kx < 0.1]
-
-    kx = kx[ky > -0.2]
-    e = e[ky > -0.2]
-    ky = ky[ky > -0.2]
-
-    kx = kx[ky < -0.1]
-    e = e[ky < -0.1]
-    ky = ky[ky < -0.1]
-
-    e = e.reshape(6,7,53)
-
-    import ARPESifier
-    result = ARPESifier.arpesify(e, np.linspace(-2.0, 1.0, 400))
-
-    import h5py
-    f = h5py.File("test2.h5", 'w')
-    f.create_dataset('kx', data=kx)
-    f.create_dataset('ky', data=ky)
-    f.create_dataset('ARPES', data=result)
-    f.create_dataset('e', data=e)
-    f.close()
