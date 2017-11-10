@@ -29,4 +29,14 @@ def load_castep(filename):
         for j in range(num_eigenvalues):
             e[i,j] = float(f.readline().strip())
 
-    return (kx, ky, kz, e)
+    # work out grid
+    xx, xi = np.unique(kx, return_inverse=True)
+    yy, yi = np.unique(ky, return_inverse=True)
+    zz, zi = np.unique(kz, return_inverse=True)
+
+    result = np.zeros((xx.shape[0], yy.shape[0], zz.shape[0], e.shape[1]))
+
+    for i in range(e.shape[0]):
+        result[xi[i], yi[i], zi[i], :] = e[i, :]
+
+    return (xx, yy, zz, result)

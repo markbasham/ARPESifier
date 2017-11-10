@@ -5,18 +5,20 @@ from scipy.stats import norm
 
 
 def arpesify(a, e, zoom_level=2, scale_level=0.01):
-    b = zoom(a, (zoom_level, zoom_level, 1))
-    v = np.zeros((b.shape[0], b.shape[1], e.shape[0]))
+    b = zoom(a, (zoom_level, zoom_level, zoom_level, 1))
+    v = np.zeros((b.shape[0], b.shape[1], b.shape[2], e.shape[0]))
     for i in range(b.shape[0]):
         print("i is %i" %(i))
         for j in range(b.shape[1]):
             for k in range(b.shape[2]):
-                v[i, j, :] = np.maximum(v[i, j, :],
-                                        norm.pdf(e, loc=b[i, j, k],
-                                                 scale=scale_level))
-    padval = int(v.shape[0]/2);
-    padtup = (padval, padval)
-    return np.pad(v, (padtup, padtup, (0, 0)), "symmetric")
+                for l in range(b.shape[3]):
+                    v[i, j, k, :] = np.maximum(v[i, j, k, :],
+                                               norm.pdf(e, loc=b[i, j, k, l],
+                                                        scale=scale_level))
+    padx = int(v.shape[0] / 2);
+    pady = int(v.shape[1] / 2);
+    padz = int(v.shape[2] / 2);
+    return np.pad(v, ((padx, padx), (pady, pady), (padz, padz), (0, 0)), "symmetric")
 
 
 def save(dataset, filename):
@@ -49,9 +51,6 @@ if __name__ == "__main__":
     if args.castep:
         import castep_loader as cl
         (kx, ky, kz, en) = cl.load_castep(args.input)
-        en = en.reshape(int(math.sqrt(en.shape[0])),
-                        int(math.sqrt(en.shape[0])),
-                        en.shape[1])
         energies = np.linspace(args.energy_begin,
                                args.energy_end,
                                args.energy_steps)
