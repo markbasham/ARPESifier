@@ -39,4 +39,6 @@ def load_castep(filename):
     for i in range(e.shape[0]):
         result[xi[i], yi[i], zi[i], :] = e[i, :]
 
+    result -= fermi_energy
+
     return (xx, yy, zz, result)
